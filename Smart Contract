@@ -1,0 +1,38 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract SimpleCrowdfunding {
+    // Variables
+    address public owner;
+    mapping(address => uint256) public contributions;
+    uint256 public totalFunds;
+
+    // Events
+    event Contribute(address indexed contributor, uint256 amount);
+    event WithdrawFunds(address indexed beneficiary, uint256 amount);
+
+    // Constructor
+    constructor() {
+        owner = msg.sender;
+    }
+
+    // Contribute function
+    function contribute() external payable {
+        require(msg.value > 0, "Contribution must be greater than 0");
+
+        contributions[msg.sender] += msg.value;
+        totalFunds += msg.value;
+
+        emit Contribute(msg.sender, msg.value);
+    }
+
+    // Withdraw funds function
+    function withdrawFunds() external {
+        require(msg.sender == owner, "Only the owner can withdraw funds");
+
+        uint256 amount = totalFunds;
+        totalFunds = 0;
+        payable(owner).transfer(amount);
+
+        emit WithdrawFunds(owner, amount);
+    }
